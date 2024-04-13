@@ -3,6 +3,8 @@ import createHttpError from 'http-errors'
 import bcrypt from 'bcrypt'
 import userModel from './userModel'
 import { User } from './userTypes'
+import { sign } from 'jsonwebtoken'
+import { config } from '../../config/config'
 
 const createUser = async (req: Request, res: Response, next: NextFunction) => {
   const { name, email, password } = req.body
@@ -35,7 +37,15 @@ const createUser = async (req: Request, res: Response, next: NextFunction) => {
     return next(createHttpError(500, 'Error while creating user.'))
   }
 
-  res.json({ msg: 'done' })
+  try {
+    const token = sign({ sub: newUser._id }, config.jwt_secret as string, {
+      expiresIn: '7d',
+      algorithm: 'HS256',
+    })
+    res.status(201).json({ accessToken: token })
+  } catch (err) {
+    return next(createHttpError(500, 'Error while signing the jwt token'))
+  }
 }
 
 export { createUser }
