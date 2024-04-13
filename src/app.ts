@@ -3,6 +3,7 @@ import { globalErrorHandler } from './middlewares/globalErrorHandlers'
 import userRouter from './features/users/userRouter'
 
 const app = express()
+app.use(express.json())
 
 app.get('/', (req, res) => {
   res.json({ message: 'initial setup is done' })
